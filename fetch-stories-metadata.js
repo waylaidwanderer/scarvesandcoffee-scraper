@@ -34,7 +34,30 @@ async function fetchStoriesMetadata(offset = 0, output = []) {
         data.author = titleMatches[2];
         data.rating = titleMatches[4].trim();
         data.reviews = parseInt(titleMatches[5]);
-        data.summary = $(this).find('.content').html();
+
+        const content = $(this).find('.content');
+        content
+            .contents()
+            .filter(function(){return this.type === 'text';})
+            .wrap('<p></p>');
+
+        const summary = content.find('.label').first().nextUntil('.label');
+        const categories = summary.next('.label').nextUntil('.label');
+        const characters = categories.next('.label').nextUntil('.label');
+        const series = characters.next('.label').nextUntil('.label');
+        const chapters = series.next('.label').nextUntil('.label');
+        const completed = chapters.next('.label').nextUntil('.label');
+        const wordCount = completed.next('.label').nextUntil('.label');
+        const readCount = wordCount.next('.label').nextUntil('.label');
+
+        data.summary = summary.html();
+        data.categories = categories.text().trim().split(', ');
+        data.characters = characters.text().trim().split(', ');
+        data.series = series.text().trim()
+        data.chapters = chapters.first().text().trim();
+        data.completed = completed.first().text().trim();
+        data.wordCount = wordCount.first().text().trim();
+        data.readCount = readCount.first().text().trim();
 
         const tail = $(this).find('.tail').text().trim();
         const tailMatches = /(.*)Published: (.*) Updated: (.*)/.exec(tail);
